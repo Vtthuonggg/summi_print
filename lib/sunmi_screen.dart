@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:sunmi/sunmi.dart';
 
@@ -9,6 +11,8 @@ class SunmiScreen extends StatefulWidget {
 }
 
 class _SunmiScreenState extends State<SunmiScreen> {
+  Map<String, String>? imagePath;
+  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,12 +32,24 @@ class _SunmiScreenState extends State<SunmiScreen> {
               height: 10,
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
+                setState(() {
+                  loading = true;
+                });
                 Sunmi printer = Sunmi();
-                printer.printReceipt();
+                imagePath = await printer.printReceipt();
+                setState(() {
+                  loading = false;
+                });
               },
-              child: const Text('Print'),
+              child: !loading ? Text('Print') : CircularProgressIndicator(),
             ),
+            if (imagePath != null)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.file(File(imagePath!['imagePath'] ?? '')),
+              ),
+            if (imagePath != null) Text(imagePath!['text'] ?? ''),
           ],
         ),
       ),
